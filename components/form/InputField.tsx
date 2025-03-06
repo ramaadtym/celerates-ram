@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import { useForm, UseFormReturn, Control } from "react-hook-form";
 import {
   Form,
@@ -12,44 +12,53 @@ import { Input } from "@/components/ui/input";
 
 interface FormValues {
   name: string;
+  email: string;
   phone: string;
   street: string;
   suite: string;
   city: string;
-  zip: string;
+  zipcode: string;
   website: string;
   company: string;
 }
 
 interface IInputFieldProps {
-  control: Control<FormValues>;
+  control: any;
   name: keyof FormValues;
   label: string;
   placeholder: string;
   type?: string;
-  isRequired?: boolean
+  isRequired?: boolean;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InputField: React.FunctionComponent<IInputFieldProps> = ({control, name, label, placeholder, type = "text", isRequired}) => {
+const InputField: React.FunctionComponent<IInputFieldProps> = ({
+  control,
+  name,
+  label,
+  placeholder,
+  type = "text",
+  isRequired,
+  value,
+  onChange,
+}) => {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}{isRequired && "*"}</FormLabel>
+          <FormLabel>
+            {label}
+            {isRequired && "*"}
+          </FormLabel>
           <FormControl>
             <Input
               type={type}
               placeholder={placeholder}
-              {...field}
-              onChange={(e) =>
-                field.onChange(
-                  type === "number"
-                    ? Number(e.target.value) || ""
-                    : e.target.value
-                )
-              }
+              value={value}
+              onChange={onChange}
             />
           </FormControl>
           <FormMessage />
