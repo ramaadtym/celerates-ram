@@ -266,7 +266,7 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
             </div>
           </section>
           <div className="flex gap-2">
-            <Button type="submit">Preview</Button>
+            <Button type="submit">Generate</Button>
             <Button
               onClick={() => {
                 window.print();

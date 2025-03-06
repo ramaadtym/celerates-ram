@@ -45,11 +45,11 @@ const EditPage: React.FunctionComponent<IEditPageProps> = async ({
 
   return (
     <LayoutProvider initialData={initialData}>
-      <section className="flex h-screen w-full">
-        <div className="w-1/2 p-6">
+      <section className="flex md:flex-row flex-col h-screen w-full">
+        <div className="md:w-1/2 w-full p-6">
           <PersonalForm data={user} />
         </div>
-        <div className="w-1/2 p-6" id="preview-pdf">
+        <div className="md:w-1/2 w-full p-6" id="preview-pdf">
           <div className="fixed">
             <PreviewPDF />
           </div>
