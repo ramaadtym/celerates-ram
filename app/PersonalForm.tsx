@@ -1,7 +1,5 @@
 "use client";
-import {
-  Form
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
@@ -14,6 +12,7 @@ import { User } from "@/types/User";
 import { fetchUsers } from "@/api/userApi";
 import ComboBox from "@/components/ui/combobox";
 import { useLayout } from "./users/[slug]/pdfLayoutContext";
+import { Download } from "lucide-react";
 
 interface IPersonalFormProps {
   data: User;
@@ -23,29 +22,38 @@ const formSchema = z.object({
   name: z.string().min(4, {
     message: "Name must be at least 4 characters.",
   }),
+  username: z.string(),
   email: z.string(),
   phone: z
     .string()
     .min(10, "Phone number must be at least 10 digits")
-    .max(25, "Phone number must be at most 25 digits"),
-  street: z.string().min(10, {
-    message: "Address must be at least 10 characters",
+    .max(25, "Phone number must be at most 25 digits")
+    .regex(/^[0-9x-]+(?: [0-9x-]+)*$/, "Invalid phone number format"),
+  address: z.object({
+    street: z.string().min(10, {
+      message: "Address must be at least 10 characters",
+    }),
+
+    suite: z.string().min(4, {
+      message: "Suite must be at least 4 characters.",
+    }),
+    city: z.string(),
+    zipcode: z
+      .string()
+      .min(5, "Zip Code must be at least 5 digits")
+      .max(15, "Zip Code must be at most 15 digits"),
   }),
-  suite: z.string().min(4, {
-    message: "Suite must be at least 4 characters.",
-  }),
-  city: z.string(),
-  zipcode: z
-    .string()
-    .min(5, "Zip Code must be at least 5 digits")
-    .max(15, "Zip Code must be at most 15 digits"),
   website: z.string(),
-  company: z.string(),
+  company: z.object({
+    name: z.string(),
+    catchPhrase: z.string(),
+    bs: z.string(),
+  }),
   layout: z.string(),
 });
 
 const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
-  data
+  data,
 }) => {
   const { name, phone, email, address, company, website } = data || {};
   const { setLayout, setData } = useLayout();
@@ -56,12 +64,18 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
       name: "",
       email: "",
       phone: "",
-      street: "",
-      suite: "",
-      city: "",
-      zipcode: "",
+      address: {
+        street: "",
+        suite: "",
+        city: "",
+        zipcode: "",
+      },
       website: "",
-      company: "",
+      company: {
+        name: "",
+        catchPhrase: "",
+        bs: "",
+      },
       layout: "layout1",
     },
   });
@@ -70,14 +84,21 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
     if (data) {
       form.reset({
         name: data.name || "",
+        username: data.username,
         email: data.email || "",
         phone: data.phone || "",
-        street: data.address?.street || "",
-        suite: data.address?.suite || "",
-        city: data.address?.city || "",
-        zipcode: data.address?.zipcode || "",
+        address: {
+          street: data?.address?.street || "",
+          suite: data?.address?.suite || "",
+          city: data?.address?.city || "",
+          zipcode: data?.address?.zipcode || "",
+        },
         website: data.website || "",
-        company: data.company?.name || "",
+        company: {
+          name: data?.company?.name || "",
+          catchPhrase: data?.company?.catchPhrase || "",
+          bs: data?.company?.bs || "",
+        },
       });
     }
   }, [data, form]);
@@ -93,7 +114,6 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     setData(values);
   }
 
@@ -134,7 +154,7 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
             placeholder="Email Address"
             type="text"
             isRequired
-            value={email || ""}
+            value={form.watch("email")}
             onChange={handleChange("email")}
           />
           <div className="mt-4 mb-0">
@@ -150,8 +170,8 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
                   placeholder="Street"
                   type="text"
                   isRequired
-                  value={address.street || ""}
-                  onChange={handleChange("street")}
+                  value={form.watch("address.street")}
+                  onChange={handleChange("address.street")}
                 />
               </div>
               <div>
@@ -162,8 +182,8 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
                   placeholder="City"
                   type="text"
                   isRequired
-                  value={address.city || ""}
-                  onChange={handleChange("city")}
+                  value={form.watch("address.city")}
+                  onChange={handleChange("address.city")}
                 />
               </div>
             </div>
@@ -176,8 +196,8 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
                   placeholder="Suite"
                   type="text"
                   isRequired
-                  value={address.suite || ""}
-                  onChange={handleChange("suite")}
+                  value={form.watch("address.suite")}
+                  onChange={handleChange("address.suite")}
                 />
               </div>
               <div>
@@ -188,24 +208,50 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
                   placeholder="ZIP Code"
                   type="text"
                   isRequired
-                  value={form.watch("zipcode")}
-                  onChange={handleChange("zipcode")}
+                  value={form.watch("address.zipcode")}
+                  onChange={handleChange("address.zipcode")}
                 />
               </div>
             </div>
           </div>
           <section>
             <div className="mb-4">
-              <InputField
-                control={form.control}
-                name="company"
-                label="Company"
-                placeholder="Company"
-                type="text"
-                isRequired
-                value={company.name || ""}
-                onChange={handleChange("company")}
-              />
+              <div className="my-4">
+                <InputField
+                  control={form.control}
+                  name="company"
+                  label="Company"
+                  placeholder="Company"
+                  type="text"
+                  isRequired
+                  value={form.watch("company.name")}
+                  onChange={handleChange("company.name")}
+                />
+              </div>
+              <div className="my-4">
+                <InputField
+                  control={form.control}
+                  name="company"
+                  label="Catch Phrase"
+                  placeholder="CatchPhrase"
+                  type="text"
+                  isRequired
+                  value={form.watch("company.catchPhrase")}
+                  onChange={handleChange("company.catchPhrase")}
+                />
+              </div>
+              <div className="my-4">
+                <InputField
+                  control={form.control}
+                  name="company"
+                  label="BS"
+                  placeholder="BS"
+                  type="text"
+                  isRequired
+                  value={form.watch("company.bs")}
+                  onChange={handleChange("company.bs")}
+                />
+              </div>
             </div>
             <div>
               <InputField
@@ -214,12 +260,21 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
                 label="Website"
                 placeholder="Website"
                 type="text"
-                value={website || ""}
+                value={form.watch("website")}
                 onChange={handleChange("website")}
               />
             </div>
           </section>
-          <Button type="submit">Submit</Button>
+          <div className="flex gap-2">
+            <Button type="submit">Preview</Button>
+            <Button
+              onClick={() => {
+                window.print();
+              }}
+            >
+              <Download size={16} /> Download
+            </Button>
+          </div>
         </form>
       </Form>
     </>

@@ -31,7 +31,6 @@ interface FormValues {
 
 interface IComboBoxProps {
   control?: any;
-  //   name: keyof FormValues;
   value: string;
   onSelect: (value: string) => void;
 }
@@ -43,7 +42,6 @@ const ComboBox: React.FunctionComponent<IComboBoxProps> = ({
   const layoutOpt = [
     { id: 1, label: "Layout 1", value: "layout1" },
     { id: 2, label: "Layout 2", value: "layout2" },
-    { id: 3, label: "Layout 3", value: "layout3" },
   ] as const;
 
   return (
@@ -84,9 +82,6 @@ const ComboBox: React.FunctionComponent<IComboBoxProps> = ({
                             value={layout.value}
                             key={layout.value}
                             onSelect={onSelect}
-                            //   onSelect={() => {
-                            //     form.setValue("layout", layout.value);
-                            //   }}
                           >
                             {layout.label}
                             <Check

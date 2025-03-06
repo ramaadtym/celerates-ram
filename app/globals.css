@@ -76,3 +76,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #preview-pdf, #preview-pdf * {
+    visibility: visible;
+  }
+  #preview-pdf {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

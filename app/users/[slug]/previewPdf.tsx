@@ -13,7 +13,7 @@ const PreviewPDF: React.FunctionComponent = ({}) => {
         return (
           <div id="layout1">
             <div className="flex items-center">
-              <p className="text-xl font-bold border">{name}</p>
+              <p className="text-xl font-bold">{name}</p>
               <div className="border-r border-solid  border-neutral-800 w-1 mr-1 h-4 "></div>
               <p className="text-[10px] text-neutral-700">@{username}</p>
             </div>
