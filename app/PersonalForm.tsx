@@ -1,12 +1,6 @@
 "use client";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +12,8 @@ import { z } from "zod";
 import InputField from "@/components/form/InputField";
 import { User } from "@/types/User";
 import { fetchUsers } from "@/api/userApi";
+import ComboBox from "@/components/ui/combobox";
+import { useLayout } from "./users/[slug]/pdfLayoutContext";
 
 interface IPersonalFormProps {
   data: User;
@@ -31,8 +27,7 @@ const formSchema = z.object({
   phone: z
     .string()
     .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number must be at most 15 digits")
-    .regex(/^\d+$/, "Phone number must contain only numbers"),
+    .max(25, "Phone number must be at most 25 digits"),
   street: z.string().min(10, {
     message: "Address must be at least 10 characters",
   }),
@@ -43,16 +38,17 @@ const formSchema = z.object({
   zipcode: z
     .string()
     .min(5, "Zip Code must be at least 5 digits")
-    .max(8, "Phone number must be at most 8 digits")
-    .regex(/^\d+$/, "Phone number must contain only numbers"),
+    .max(15, "Zip Code must be at most 15 digits"),
   website: z.string(),
   company: z.string(),
+  layout: z.string(),
 });
 
 const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
-  data,
+  data
 }) => {
   const { name, phone, email, address, company, website } = data || {};
+  const { setLayout, setData } = useLayout();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,6 +62,7 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
       zipcode: "",
       website: "",
       company: "",
+      layout: "layout1",
     },
   });
 
@@ -90,8 +87,14 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
       form.setValue(field, e.target.value);
     };
 
+  const handleSelect = (value: string) => {
+    form.setValue("layout", value);
+    setLayout(value);
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    setData(values);
   }
 
   return (
@@ -99,6 +102,11 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
       <h1 className="text-center text-xl">Personal Data of {name}</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <ComboBox
+            value={form.watch("layout")}
+            control={form.control}
+            onSelect={handleSelect}
+          />
           <InputField
             control={form.control}
             name="name"
@@ -116,7 +124,7 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
             placeholder="Phone No."
             type="text"
             isRequired
-            value={phone || ""}
+            value={form.watch("phone")}
             onChange={handleChange("phone")}
           />
           <InputField
@@ -180,7 +188,7 @@ const PersonalForm: React.FunctionComponent<IPersonalFormProps> = ({
                   placeholder="ZIP Code"
                   type="text"
                   isRequired
-                  value={address.zipcode || ""}
+                  value={form.watch("zipcode")}
                   onChange={handleChange("zipcode")}
                 />
               </div>
